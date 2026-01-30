@@ -30,7 +30,7 @@ export default function DashboardPage() {
         </Link>
 
         <Link
-          href="/try-on/upload"
+          href="/try-on"
           className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow text-white"
         >
           <Upload className="h-8 w-8 mb-3" />
