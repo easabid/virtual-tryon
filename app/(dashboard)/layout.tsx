@@ -35,13 +35,19 @@ export default function DashboardLayout({
       
       // Check if user is admin
       if (user) {
+        console.log('Checking admin status for user:', user.id)
         const { data: adminUsers, error } = await supabase
           .from('admin_users')
           .select('*')
           .eq('user_id', user.id)
         
+        console.log('Admin check result:', { adminUsers, error, isAdmin: !error && adminUsers && adminUsers.length > 0 })
+        
         if (!error && adminUsers && adminUsers.length > 0) {
           setIsAdmin(true)
+          console.log('User is admin!')
+        } else {
+          console.log('User is NOT admin')
         }
       }
       
