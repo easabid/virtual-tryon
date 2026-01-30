@@ -99,6 +99,15 @@ export default function AdminLayout({
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
+            {/* Back to User View */}
+            <Link
+              href="/dashboard"
+              className="flex items-center px-4 py-3 mb-4 rounded-lg border-2 border-purple-500 text-purple-100 hover:bg-purple-700/50 transition-colors"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              <span className="ml-3 font-medium">Back to User View</span>
+            </Link>
+
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href

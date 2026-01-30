@@ -12,7 +12,8 @@ import {
   History, 
   User as UserIcon, 
   LogOut,
-  Sparkles 
+  Sparkles,
+  Shield
 } from 'lucide-react'
 
 export default function DashboardLayout({
@@ -23,6 +24,7 @@ export default function DashboardLayout({
   const router = useRouter()
   const pathname = usePathname()
   const [user, setUser] = useState<User | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const supabase = createClient()
 
@@ -30,6 +32,18 @@ export default function DashboardLayout({
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      
+      // Check if user is admin
+      if (user) {
+        const { data: adminUser } = await supabase
+          .from('admin_users')
+          .select('*')
+          .eq('user_id', user.id)
+          .single()
+        
+        setIsAdmin(!!adminUser)
+      }
+      
       setIsLoading(false)
     }
 
@@ -77,6 +91,17 @@ export default function DashboardLayout({
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-6 space-y-2">
+            {/* Admin Panel Button (only for admins) */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center px-4 py-3 mb-4 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 transition-colors shadow-lg"
+              >
+                <Shield className="h-5 w-5" />
+                <span className="ml-3 font-medium">Admin Panel</span>
+              </Link>
+            )}
+
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = pathname === item.href
