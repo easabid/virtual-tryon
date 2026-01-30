@@ -35,13 +35,14 @@ export default function DashboardLayout({
       
       // Check if user is admin
       if (user) {
-        const { data: adminUser } = await supabase
+        const { data: adminUsers, error } = await supabase
           .from('admin_users')
           .select('*')
           .eq('user_id', user.id)
-          .single()
         
-        setIsAdmin(!!adminUser)
+        if (!error && adminUsers && adminUsers.length > 0) {
+          setIsAdmin(true)
+        }
       }
       
       setIsLoading(false)
