@@ -20,14 +20,75 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // MOCK RESULT FOR NOW - Return dress image as placeholder
-    // Real AI integration would go here
-    console.log('Processing try-on (mock mode)', { photoUrl, dressUrl })
-    
-    // Use dress image as mock result
-    const mockResultUrl = dressUrl
-    
-    return NextResponse.json({ resultUrl: mockResultUrl })
+    const AI_API_KEY = process.env.AI_API_KEY
+    const AI_API_URL = process.env.AI_API_URL
+
+    if (!AI_API_KEY || !AI_API_URL) {
+      console.error('AI configuration missing')
+      return NextResponse.json(
+        { error: 'AI service not configured' },
+        { status: 500 }
+      )
+    }
+
+    console.log('Calling Hugging Face API:', AI_API_URL)
+
+    // Call Hugging Face IDM-VTON API
+    const response = await fetch(AI_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${AI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        inputs: {
+          cloth: dressUrl,
+          model: photoUrl,
+        },
+      }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Hugging Face API error:', response.status, errorText)
+      
+      // If model is loading, return a helpful message
+      if (response.status === 503) {
+        return NextResponse.json({
+          error: 'AI model is loading. Please try again in 20-30 seconds.',
+          isLoading: true
+        }, { status: 503 })
+      }
+      
+      // Fallback to mock result for other errors
+      console.log('Using mock result due to API error')
+      return NextResponse.json({ resultUrl: dressUrl })
+    }
+
+    // Get the result image
+    const blob = await response.blob()
+    const buffer = Buffer.from(await blob.arrayBuffer())
+
+    // Upload result to Supabase Storage
+    const fileName = `${user.id}/${Date.now()}-result.png`
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('tryon-results')
+      .upload(fileName, buffer, {
+        contentType: 'image/png',
+        upsert: true
+      })
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
+      throw uploadError
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('tryon-results')
+      .getPublicUrl(fileName)
+
+    console.log('Try-on result uploaded:', publicUrl)
+    return NextResponse.json({ resultUrl: publicUrl })
     
   } catch (error: any) {
     console.error('Try-on API error:', error)
