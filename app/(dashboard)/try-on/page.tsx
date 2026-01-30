@@ -198,7 +198,7 @@ export default function TryOnPage() {
         user_id: user.id,
         dress_id: selectedDress.id,
         user_photo_id: selectedPhoto.id,
-        result_image_url: data.resultUrl,
+        result_url: data.resultUrl,
         status: 'completed',
       }])
 

@@ -116,12 +116,12 @@ export default function HistoryPage() {
             >
               <div className="relative aspect-square bg-gray-100">
                 <img
-                  src={session.result_image_url || session.dresses?.image_url || ''}
+                  src={session.result_url || session.dresses?.image_url || ''}
                   alt="Try-on result"
                   className="w-full h-full object-cover"
                 />
                 <button
-                  onClick={() => setSelectedImage(session.result_image_url || session.dresses?.image_url || null)}
+                  onClick={() => setSelectedImage(session.result_url || session.dresses?.image_url || null)}
                   className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:shadow-lg"
                 >
                   <Eye className="h-5 w-5 text-gray-600" />
@@ -145,7 +145,7 @@ export default function HistoryPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => {
-                      const imageUrl = session.result_image_url || session.dresses?.image_url
+                      const imageUrl = session.result_url || session.dresses?.image_url
                       if (imageUrl) {
                         downloadImage(imageUrl, `tryon-${session.id}.jpg`)
                       }
