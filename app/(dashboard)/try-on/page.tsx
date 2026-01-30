@@ -185,10 +185,16 @@ export default function TryOnPage() {
       })
 
       if (!response.ok) {
-        throw new Error('Try-on processing failed')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Try-on processing failed')
       }
 
       const data = await response.json()
+      
+      if (data.error) {
+        throw new Error(data.error)
+      }
+      
       setResult(data.resultUrl)
 
       // Save to history

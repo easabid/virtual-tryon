@@ -32,8 +32,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Calling Hugging Face API:', AI_API_URL)
+    console.log('With images:', { photoUrl, dressUrl })
 
-    // Call Hugging Face IDM-VTON API
+    // IDM-VTON expects image URLs in a specific format
+    // Try the gradio client format
     const response = await fetch(AI_API_URL, {
       method: 'POST',
       headers: {
@@ -42,11 +44,13 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         inputs: {
-          cloth: dressUrl,
-          model: photoUrl,
+          "image": photoUrl,  // person image
+          "mask_image": dressUrl,  // garment image
         },
       }),
     })
+
+    console.log('Hugging Face response status:', response.status)
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -60,9 +64,11 @@ export async function POST(request: NextRequest) {
         }, { status: 503 })
       }
       
-      // Fallback to mock result for other errors
-      console.log('Using mock result due to API error')
-      return NextResponse.json({ resultUrl: dressUrl })
+      // Return detailed error instead of fallback
+      return NextResponse.json({
+        error: `Hugging Face API failed: ${errorText.substring(0, 200)}`,
+        status: response.status
+      }, { status: response.status })
     }
 
     // Get the result image
