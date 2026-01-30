@@ -128,8 +128,6 @@ export default function TryOnPage() {
         .insert([{
           user_id: user.id,
           photo_url: publicUrl,
-          file_size: file.size,
-          mime_type: file.type,
         }])
         .select()
         .single()
