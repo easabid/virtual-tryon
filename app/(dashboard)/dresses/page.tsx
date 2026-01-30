@@ -335,7 +335,7 @@ export default function DressesPage() {
                     <span className="text-xs text-gray-500">
                       {dress.color}
                     </span>
-                    {dress.price > 0 && (
+                    {dress.price && dress.price > 0 && (
                       <span className="text-sm font-semibold text-gray-900">
                         ${dress.price.toFixed(2)}
                       </span>
